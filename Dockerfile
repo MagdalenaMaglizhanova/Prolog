@@ -4,4 +4,4 @@ WORKDIR /app
 
 COPY server.pl /app/
 
-CMD ["swipl", "-q", "-f", "server.pl"]
+CMD ["swipl", "-s", "server.pl", "-g", "start_server", "-t", "halt"]
