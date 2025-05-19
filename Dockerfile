@@ -1,4 +1,4 @@
-FROM swi-prolog:latest
+FROM swipl
 
 WORKDIR /app
 
