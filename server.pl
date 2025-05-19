@@ -1,8 +1,13 @@
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
+:- use_module(library(http/http_json)).
 
-:- http_handler('/prolog_query', prolog_query, []).
+:- http_handler(root(hello), say_hello, []).
 
-prolog_query(Request) :-
-    format('Content-type: text/plain~n~n'),
-    format('Hello from Prolog!~n').
+server(Port) :-
+    http_server(http_dispatch, [port(Port)]).
+
+say_hello(_Request) :-
+    reply_json(json{message:"Hello from Prolog"}).
+
+:- initialization(server(8080)).
