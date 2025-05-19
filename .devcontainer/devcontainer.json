@@ -1,0 +1,10 @@
+{
+  "name": "Prolog with Python",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "features": {
+    "ghcr.io/devcontainers/features/apt-packages:1": {
+      "packages": ["swipl", "gcc", "libpython3-dev"]
+    }
+  },
+  "postCreateCommand": "pip install janus-swi streamlit"
+}
