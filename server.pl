@@ -13,6 +13,8 @@ say_hello(_Request) :-
 :- initialization(main, main).
 
 main :-
-    getenv('PORT', PortAtom),
-    atom_number(PortAtom, Port),
+    (   getenv('PORT', PortAtom) -> % прочитаме порт от променлива
+        atom_number(PortAtom, Port)
+    ;   Port = 8080                 % ако няма, използвай 8080 по подразбиране
+    ),
     server(Port).
