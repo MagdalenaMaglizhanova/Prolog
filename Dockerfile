@@ -1,7 +1,6 @@
 FROM swipl
 
 WORKDIR /app
-
 COPY server.pl /app/
 
 EXPOSE 8080
