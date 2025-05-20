@@ -4,16 +4,15 @@
 
 :- http_handler(root(hello), say_hello, []).
 
-say_hello(_Request) :-
-    reply_json(json{message: "Hello from Prolog API"}).
-
 server(Port) :-
-    format("Starting server on port ~w~n", [Port]),
     http_server(http_dispatch, [port(Port)]).
 
-:- initialization(main).
+say_hello(_Request) :-
+    reply_json_dict(_{message:"Hello from Prolog REST API"}).
+
+:- initialization(main, main).
 
 main :-
-    getenv('PORT', PortAtom),         % <- взима порт от Railway
+    getenv('PORT', PortAtom),
     atom_number(PortAtom, Port),
     server(Port).
