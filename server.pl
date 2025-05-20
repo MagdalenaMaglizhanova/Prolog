@@ -4,13 +4,20 @@
 
 :- http_handler(root(hello), say_hello, []).
 
-say_hello(_Request) :-
-    reply_json(json{message:"Hello from Prolog"}).
-
-server :-
-    getenv('PORT', PortAtom),           % Render задава PORT като env променлива
-    atom_number(PortAtom, Port),
+server(Port) :-
     format('Starting server on port ~w~n', [Port]),
-    http_server(http_dispatch, [port(Port)]).
+    catch(
+        http_server(http_dispatch, [port(Port)]),
+        Error,
+        (format('Server failed: ~w~n', [Error]), fail)
+    ).
 
-:- initialization(server, main).
+say_hello(_Request) :-
+    reply_json(json{message: "Hello from Prolog"}).
+
+:- initialization(main).
+
+main :-
+    getenv('PORT', PortAtom),
+    atom_number(PortAtom, Port),
+    server(Port).
