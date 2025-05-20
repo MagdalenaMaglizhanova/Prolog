@@ -3,18 +3,22 @@
 :- use_module(library(http/http_json)).
 :- use_module(library(http/json)).
 
-% Дефинираме маршрут /hello
+:- dynamic server_started/0.
+
+% HTTP handler
 :- http_handler(root(hello), say_hello, []).
 
-% Стартираме сървъра на порт, даден от Render
+% Say hello endpoint
+say_hello(_Request) :-
+    reply_json(json{message:"Hello from Prolog"}).
+
+% Server entry point
 server :-
+    \+ server_started,
+    assert(server_started),
     getenv('PORT', PortAtom),
     atom_number(PortAtom, Port),
     format('Starting server on port ~w~n', [Port]),
     http_server(http_dispatch, [port(Port)]).
 
-% Обработваме заявката /hello
-say_hello(_Request) :-
-    reply_json(json{message: "Hello from Prolog"}).
-
-:- initialization(server).
+:- initialization(server, main).
