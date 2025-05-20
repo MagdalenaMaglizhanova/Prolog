@@ -10,8 +10,9 @@ server(Port) :-
 say_hello(_Request) :-
     reply_json(json{message: "Hello from Prolog API"}).
 
-:- initialization(
+start_server :-
     getenv('PORT', PortAtom),
     atom_number(PortAtom, Port),
-    server(Port)
-).
+    server(Port).
+
+:- initialization(start_server).
