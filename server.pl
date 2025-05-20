@@ -5,21 +5,13 @@
 :- http_handler(root(hello), say_hello, []).
 
 server(Port) :-
-    format('Starting server on port ~w~n', [Port]),
-    catch(
-        http_server(http_dispatch, [port(Port)]),
-        Error,
-        (format('Server failed with error: ~w~n', [Error]), fail)
-    ).
+    http_server(http_dispatch, [port(Port)]).
 
 say_hello(_Request) :-
-    format('Received request for /hello~n', []),
-    reply_json(json{message: "Hello from Prolog"}).
+    reply_json(json{message: "Hello from Prolog API"}).
 
-:- initialization(main).
-
-main :-
-    ( getenv('PORT', PortAtom) -> true ; PortAtom = '8080' ),
+:- initialization(
+    getenv('PORT', PortAtom),
     atom_number(PortAtom, Port),
-    format('Port from env or default: ~w~n', [Port]),
-    server(Port).
+    server(Port)
+).
