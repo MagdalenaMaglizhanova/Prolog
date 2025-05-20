@@ -1,8 +1,8 @@
 FROM swipl
 
+# Копирай всички файлове в /app
+COPY . /app
 WORKDIR /app
-COPY server.pl /app/
 
-EXPOSE 8080
-
-CMD ["swipl", "-q", "-f", "server.pl"]
+# Стартирай Prolog сървъра при стартиране на контейнера
+CMD ["swipl", "-s", "server.pl", "-g", "main", "-t", "halt"]
