@@ -1,21 +1,53 @@
-:- use_module(library(http/thread_httpd)).
-:- use_module(library(http/http_dispatch)).
-:- use_module(library(http/http_json)).
-:- use_module(library(http/json)).
+// server.js
+const express = require("express");
+const cors = require("cors");
+const { execFile } = require("child_process");
+const path = require("path");
+const fs = require("fs");
 
-:- http_handler(root(hello), say_hello, []).
+const app = express();
+const port = process.env.PORT || 10000;
 
-server(Port) :-
-    http_server(http_dispatch, [port(Port)]).
+app.use(cors());
+app.use(express.json());
 
-say_hello(_Request) :-
-    reply_json(json{message: "Hello from Prolog API"}).
+// POST /prolog-run
+// Приема { code: "...Prolog code...", query: "generate_art(Svg)" }
+app.post("/prolog-run", (req, res) => {
+  const { code, query } = req.body;
 
-start_server :-
-    (   getenv('PORT', PortAtom)
-    ->  atom_number(PortAtom, Port)
-    ;   Port = 8080
-    ),
-    server(Port).
+  if (!code || !query) {
+    return res.status(400).json({ error: "No code or query provided" });
+  }
 
-:- initialization(start_server, main).
+  // Създаваме временен Prolog файл
+  const tmpFile = path.join(__dirname, "temp.pl");
+  fs.writeFileSync(tmpFile, code);
+
+  // Подготвяме целта
+  let goal = "";
+  const hasVars = /[A-Z]/.test(query);
+  if (hasVars) {
+    const variableRegex = /[A-Z][a-zA-Z0-9_]*/g;
+    const variables = query.match(variableRegex);
+    const args = variables ? variables.join(",") : "";
+    goal = `findall([${args}], ${query}, L), writeq(L), nl, halt.`;
+  } else {
+    goal = `${query}, write('true'), nl, halt.`;
+  }
+
+  // Изпълняваме SWI-Prolog
+  execFile("swipl", ["-q", "-s", tmpFile, "-g", goal], (error, stdout, stderr) => {
+    if (error) {
+      console.error("Prolog Error:", error);
+      console.error("Prolog Stderr:", stderr);
+      res.status(500).json({ error: stderr || error.message });
+    } else {
+      res.json({ result: stdout.trim() || "false" });
+    }
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Prolog compiler server running on port ${port}`);
+});
